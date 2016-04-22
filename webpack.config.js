@@ -15,12 +15,19 @@ const PATHS = {
   build: path.join(__dirname, 'build')
 };
 
+const babelSettings = {
+            cacheDirectory: true,
+            presets: ['react', 'es2015', 'survivejs-kanban']
+};
 
 const common = {
   // Entry accepts a path or an object of entries. We'll be using the
   // latter form given it's convenient with more complex configurations.
   entry: {
     app: PATHS.app
+  },
+  resolve: {
+    extensions: ['', '.js', '.jsx']
   },
   output: {
     path: PATHS.build,
@@ -45,6 +52,17 @@ const common = {
         test: /\.css$/,
         loaders: ['style', 'css'],
         // Include accepts either a path or an array of paths.
+        include: PATHS.app
+      },
+      // Set up jsx. This accepts js too thanks to RegExp
+      {
+        test: /\.jsx?$/,
+        // Enable caching for improved performance during development
+        // It uses default OS directory by default. If you need something
+        // more custom, pass a path to it. I.e., babel?cacheDirectory=<path>
+        loaders: ['babel?cacheDirectory,presets[]=react,presets[]=es2015,presets[]=survivejs-kanban'],
+        // Parse only app files! Without this it will go through entire project.
+        // In addition to being slow, that will most likely result in an error.
         include: PATHS.app
       }
     ]
