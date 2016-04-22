@@ -2,6 +2,8 @@ const path = require('path');
 
 const merge = require('webpack-merge');
 
+const webpack = require('webpack');
+
 const TARGET = process.env.npm_lifecycle_event;
 
 const PATHS = {
@@ -33,13 +35,12 @@ const common = {
   }
 };
 
-const webpack = require('webpack');
 
 // Default configuration. We will return this if
 // Webpack is called outside of npm.
 if(TARGET === 'start' || !TARGET) {
   module.exports = merge(common, {
-    
+    devtool: 'eval-source-map',
     devServer: {
       contentBase: PATHS.build,
 
