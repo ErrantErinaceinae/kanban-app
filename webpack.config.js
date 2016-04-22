@@ -4,6 +4,8 @@ const merge = require('webpack-merge');
 
 const webpack = require('webpack');
 
+const stylelint = require('stylelint');
+
 const NpmInstallPlugin = require('npm-install-webpack-plugin');
 
 const TARGET = process.env.npm_lifecycle_event;
@@ -30,6 +32,11 @@ const common = {
         test: /\.jsx?$/,
         loaders: ['eslint'],
         include: PATHS.app
+      },
+       {
+        test: /\.css$/,
+        loaders: ['postcss'],
+        include: PATHS.app
       }
     ],
     loaders: [
@@ -41,7 +48,10 @@ const common = {
         include: PATHS.app
       }
     ]
-  }
+  },
+  postcss: function () {
+        return [stylelint()];
+    }
 };
 
 
