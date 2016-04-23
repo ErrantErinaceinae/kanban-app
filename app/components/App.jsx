@@ -1,25 +1,26 @@
-import uuid from 'node-uuid';
+import NoteActions from '../actions/NoteActions';
+import NoteStore from '../stores/NoteStore';
+
 import React from 'react';
 import Notes from './Notes.jsx';
 export default class App extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            notes: [
-                {
-                    id: uuid.v4(),
-                    task: 'Learn Webpack Today'
-                }, {
-                    id: uuid.v4(),
-                    task: 'Learn React'
-                }, {
-                    id: uuid.v4(),
-                    task: 'Do laundry'
-                }
-            ]
-        };
-
+        this.state = NoteStore.getState();
     }
+    componentDidMount() {
+      NoteStore.listen(this.storeChanged);
+    }
+    componentWillUnmount() {
+      NoteStore.unlisten(this.storeChanged);
+    }
+    storeChanged = (state) => {
+        // Without a property initializer `this` wouldn't
+        // point at the right context because it defaults to
+        // `undefined` in strict mode.
+        this.setState(state);
+    };
+
     render() {
         const notes = this.state.notes;
         return (
@@ -30,24 +31,7 @@ export default class App extends React.Component {
         );
     }
     addNote = () => {
-        // It would be possible to write this in an imperative style.
-        // I.e., through `this.state.notes.push` and then
-        // `this.setState({notes: this.state.notes})` to commit.
-        //
-        // I tend to favor functional style whenever that makes sense.
-        // Even though it might take more code sometimes, I feel
-        // the benefits (easy to reason about, no side effects)
-        // more than make up for it.
-        //
-        // Libraries, such as Immutable.js, go a notch further.
-        this.setState({
-            notes: this.state.notes.concat([
-                {
-                    id: uuid.v4(),
-                    task: 'New task'
-                }
-            ])
-        });
+        NoteActions.create({task: 'New task'});
     };
     editNote = (id, task) => {
         // Don't modify if trying to set an empty value
@@ -55,20 +39,10 @@ export default class App extends React.Component {
             return;
         }
 
-        const notes = this.state.notes.map(note => {
-            if (note.id === id && task) {
-                note.task = task;
-            }
-
-            return note;
-        });
-
-        this.setState({notes});
+        NoteActions.update({id, task});
     };
     deleteNote = (id,event) => {
         event.stopPropagation();
-        this.setState({
-            notes:  this.state.notes.filter(note => note.id != id)
-        });
+        NoteActions.delete(id);
     };
 }
